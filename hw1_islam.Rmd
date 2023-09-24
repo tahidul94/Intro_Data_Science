@@ -1,0 +1,481 @@
+---
+title: "STAT 4410/8416 Homework 1"
+author: "ISLAM MD TAHIDUL"
+date: "Due on Sep 21"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align='center')
+```
+
+1. Based on your reading assignments answer the following questions:
+    ---
+  a) What is data science?  
+  - **Answer**: Data science is an interdisciplinary field that deals with the extraction of knowledge, insights, and meaningful information from large and complex datasets. It combines various techniques from statistics, mathematics, computer science, and domain-specific knowledge to analyze data, uncover patterns, make predictions, and support decision-making.<br> <br>
+  
+    ---
+   b) Explain with an example what you mean by data product.
+  - **Answer**:A data product is a software application or service that relies on data to provide valuable insights, predictions, or functionality. Consider a fitness tracker as an example. When you wear a fitness tracker, it collects various data points such as your heart rate, the number of steps you take, and the quality of your sleep. This data is processed by the tracker's algorithms.<br> <br>
+The output is not just raw data; it's transformed into meaningful information. For instance, the fitness tracker can provide you with insights on your daily activity levels, recommend exercise routines based on your goals, and track your progress over time through charts and graphs.<br><br>
+The tracker becomes a data product because it uses data as its core resource to offer valuable features and benefits to the user, helping them make healthier lifestyle choices. It's a tool that empowers users with insights they wouldn't have without the data processing capabilities of the device. Data products are prevalent in various fields, from healthcare to finance, harnessing data to deliver practical solutions and enhance decision-making.<br> <br>
+
+    ---
+    c) Carefully read Cleveland's paper shown in lecture 2 and discuss what he suggested about the field of statistics and data science.
+  - **Answer**:The seminal article "Data Science: An Action Plan for Expanding the Technical Areas of the Field of Statistics" published in 2001, William S. Cleveland advocated for the emergence of data science as a distinct and interdisciplinary field. He recognized the profound impact of the digital age on the volume and complexity of data, emphasizing that traditional statistical methods alone were inadequate for handling this data deluge.<br><br>
+    Cleveland defined data science as a field focused on developing new techniques and tools for extracting meaningful knowledge and insights from data. He underscored the importance of data exploration, visualization, and computational skills in this endeavor, suggesting that visual representation of data is essential for comprehension and decision-making.<br><br>
+    Moreover, he stressed that data science should produce actionable insights with real-world applications. Collaborative efforts between statisticians, computer scientists, domain experts, and data visualization specialists were encouraged to tackle complex problems effectively.<br><br>
+    Cleveland's vision also included education and ethical considerations. He called for educational programs to equip individuals with the necessary skills for data science roles and emphasized ethical responsibilities regarding data privacy and usage.<br><br>
+    His article was a seminal contribution that laid the foundation for the evolution of data science as a multifaceted field, bridging statistical expertise, computational proficiency, and domain-specific knowledge to address the challenges and opportunities presented by the data-rich environment of the 21st century.<br> <br>
+    
+   ---
+   
+  d) Explain in a short paragraph how data science is different from computer science.
+  - **Answer**:Data science and computer science are closely related but distinct fields. Computer science primarily focuses on the design, development, and optimization of computer systems, algorithms, and software. It deals with programming, software engineering, and the theoretical aspects of computation. In contrast, data science is more concerned with leveraging data to extract meaningful insights, make predictions, and solve real-world problems. It involves statistical analysis, machine learning, data visualization, and domain expertise to understand and interpret data. While computer science provides the technical foundation for data science, data science is broader in scope, encompassing the entire data lifecycle from collection to analysis and decision-making.<br><br>
+  
+  ---
+  
+  e) What is data literacy? Is it important to be data literate in this modern world? Explain why or why not.
+  - **Answer**: Data literacy: Data literacy is the ability to read, interpret, and communicate with data effectively.<br><br>
+      
+       <u>Importants to be data literate:</u><br>
+       - It empowers informed decision-making in personal life and business.<br>
+       - Data literacy fosters critical thinking and helps distinguish credible information from fake news.<br>
+       - It opens up career opportunities in data-related fields.<br>
+       - Essential for understanding and managing personal finances.<br>
+       - Crucial for navigating data privacy concerns in the digital age.<br>
+       - Becomes increasingly indispensable in our data-driven world.<br><br>
+  
+   ---
+   
+  f) In his article, Donoho talked about the Common Task Framework. Explain what it is and why he mentioned it.
+  - **Answer**:In his article "50 Years of Data Science," David Donoho discusses the Common Task Framework as a key concept in the field of data science. The Common Task Framework refers to the practice of evaluating and comparing different data analysis and machine learning methods using standardized tasks or challenges.
+
+      Donoho mentions the Common Task Framework because it plays a crucial role in advancing the field of data science. Here's why he highlighted it:<br><br>
+      
+
+  - Common Task Framework: It's a standardized approach for evaluating and comparing data analysis and machine learning methods.
+
+   - Objective Evaluation: Helps in objectively assessing the performance of various methods by defining common tasks and metrics.
+
+   - Method Comparison: Allows for a fair comparison of different algorithms, aiding in the selection of the most effective ones.
+
+   - Tracking Progress: Enables tracking progress in the field as new methods are compared to established benchmarks.
+
+   - Community Collaboration: Fosters collaboration among data scientists, encouraging them to work together on common tasks and share findings.
+
+   - Education and Training: Provides valuable examples for educating and training data scientists, aiding in understanding real-world applications.
+
+   - Rigor and Transparency: Promotes rigor and transparency in data science research, ensuring that methods are thoroughly tested under consistent conditions.,br><br>
+   
+   ---
+
+  g) According to Donoho, what are the activities of greater data science? 
+   - **Answer**:
+    Donoho's activities of greater data science are:
+
+   - Data Exploration: Understand and visualize data to find insights and patterns.
+   - Data Preparation: Clean, transform, and structure data for analysis.
+   - Data Representation: Develop effective ways to represent and transform data.
+   - Computational Statistics: Create algorithms for efficient large-scale data analysis.
+   - Data Modeling: Build predictive and explanatory models.
+   - Data Visualization: Communicate results through visualizations.
+   - Data Privacy and Ethics: Ensure responsible data usage and address privacy concerns.
+   - Domain Expertise: Gain knowledge in the specific field where data science is applied.
+   - Scientific Methodology: Apply rigorous scientific principles for validation.
+   - Collaboration: Work in multidisciplinary teams.
+   - Communication: Effectively convey findings to various stakeholders.<br><br>
+   
+   ---
+   
+    
+2. What are the very first few steps one should take once data is loaded onto **R**? Demonstrate them by loading tips data from http://www.ggobi.org/book/data/tips.csv.
+      
+   - **Answer**: Step 1:Loading the Required Libraries <br>
+                 Step 2:Loading the Data <br>
+                 Step 3:Inspect the Data <br>
+
+
+```{r}
+# Step 1:Loading the Required Libraries
+library(ggplot2)
+# Step 2:Loading the Data
+tips_data <- read.csv("http://www.ggobi.org/book/data/tips.csv")
+
+#Step 3:Inspect the Data
+
+# View the first few rows of the dataset
+head(tips_data)
+
+# View the last few rows of the dataset
+tail(tips_data)
+
+# Get an overview of the dataset's structure
+str(tips_data)
+
+# Generate summary statistics
+summary(tips_data)
+
+#Plot
+plot(tips_data)
+```
+  
+  ---
+  
+3. In our **R** class, we learned about recursive functions that produce a sequence of numbers up to a given number, say $n$, as demonstrated with the following code:
+```{r}
+foo <- function(x) {
+  print(x)
+  if(x > 1) {
+    foo(x - 1)
+  }
+}
+
+moo <- function(x) {
+  if(x > 1) {
+    moo(x - 1)
+  }
+  print(x)
+}
+
+foo(3)
+moo(3)
+```  
+|         Explain why ``moo()`` prints 1 through 3 while ``foo()`` prints from 3 to 1.
+
+   - **Answer**:The difference in the order of printed values between the foo() and moo() functions is due to the placement of the print(x) statement within the functions and the sequence of recursive calls.
+   
+      - In the foo() function, the print(x) statement is the first action, so it prints the current value of x and then calls itself with a decremented x. This leads to a decrementing sequence of values being printed, from 3 to 1.<br>
+     
+      - In contrast, in the moo() function, the recursive call happens before the print(x) statement. So, the function calls itself with a decremented x first, creating a stack of recursive calls. When the base case is reached (x <= 1), the print(x) statement is executed, resulting in values being printed in an increasing order, from 1 to 3, as the function unwinds the stack.
+      
+      ---
+
+4. The function `sqrt()` provides the square root of a non-negative number. Note what happens when you try `sqrt(-1)`. We want to create our own function that either finds the square root of a non-negative number or provides a custom message if we pass it a negative number.
+```{r}
+#our own function
+custom_sqrt <- function(x) {
+  if (x < 0) {
+    return("Cannot compute square root of a negative number")
+  } else {
+    return(sqrt(x))
+  }
+}
+
+# Testing the custom_sqrt function
+custom_sqrt(9)   # Returns the square root of 9 that is (3)
+custom_sqrt(-4)  # Returns the custom message
+```
+    
+  a) Create a new `R` function `getRootNotVectorized()` that will return the square root of any non-negative number and 'not possible' for a negative number. Further, `getRootNotVectorized()` should **only** successfully return 'not possible' if the negative value is the first element that you pass to the function. Otherwise, your function should return `NaN` for negative values. Demonstrate that your function produces the following outputs:  
+    \    
+    `getRootNotVectorized(4) = 2`  
+    `getRootNotVectorized(-4) = "not possible"`  
+    `getRootNotVectorized(c(-1, -4)) = "not possible"`  
+    `getRootNotVectorized(c(0, 1, -1, 4, -4)) = 0 1 NaN 2 NaN`.  
+    \   
+    Don't worry about the warning messages that  vector inputs with more than one element for now.    
+```{r}
+getRootNotVectorized <- function(x) {
+  if (is.numeric(x)) {
+    if (x[1] >= 0) {
+      result <- sqrt(x)
+      return(result)
+    } else {
+      return("not possible")
+    }
+  } else {
+    return(NaN)
+  }
+}
+
+# Test cases
+result1 <- getRootNotVectorized(4)
+result1
+result2 <- getRootNotVectorized(-4)
+result2
+result3 <- getRootNotVectorized(c(-1, -4))
+result3
+result4 <- getRootNotVectorized(c(0, 1, -1, 4, -4))
+result4
+
+
+```    
+    
+  ---
+  
+b) Now create a second function `getRootVectorized()` that will return the square root of any non-negative number and 'not possible' for a negative number **regardless** of the number's position in a numeric vector of arbitrary length. Demonstrate that your function produces the following outputs:   
+    \   
+    `getRootVectorized(4) = 2`  
+    `getRootVectorized(-4) = "not possible"`  
+    `getRootVectorized(c(-1, -4)) = "not possible" "not possible"`  
+    `getRootVectorized(c(0, 1, -1, 4, -4)) = "0" "1" "not possible" "2" "not possible"`.    
+    \  
+```{r}
+getRootVectorized <- function(x) {
+  ifelse(x >= 0, sqrt(x), "not possible")
+}
+
+# Test cases
+result1 <- getRootVectorized(4)
+result2 <- getRootVectorized(-4)
+result3 <- getRootVectorized(c(-1, -4))
+result4 <- getRootVectorized(c(0, 1, -1, 4, -4))
+
+# Convert results to character for consistent formatting
+result1 <- as.character(result1)
+result1
+result2 <- as.character(result2)
+result2
+result3 <- as.character(result3)
+result3
+result4 <- as.character(result4)
+result4
+
+```    
+   ---
+   
+  c) Describe the differences in your code between `getRootNotVectorized()` and `getRootVectorized()` that allowed you to get the desired message output for any negative element of a vector in the latter function but not the former. Knowing whether or not functions that you use will handle vectors in the way that you expect will be very important as you continue working with `R`.  
+    
+   - **Answer**: The key difference is that `getRootVectorized()` is designed to handle input vectors of arbitrary length by processing each element independently, while `getRootNotVectorized()` expects a single numeric value as input and cannot handle vectors. This allows `getRootVectorized()` to provide the desired message output for any negative element in a vector, while `getRootNotVectorized()` cannot.<br>
+   
+        In essence,  `getRootNotVectorized()` is designed for scalar (single) input, whereas `getRootVectorized()` is designed to handle vectorized input. It uses a loop to process each element of the vector separately, which is why it can provide the desired message output for any negative element in the input vector.
+   
+   ---
+   
+  d) Why do you see a difference between the output of the two following lines of code?  
+```{r, eval=FALSE}
+is.numeric(getRootVectorized(c(0, 1, 4)))
+
+is.numeric(getRootVectorized(c(0, 1, -4)))
+```
+  
+   - **Answer**: The difference in output arises from how `getRootVectorized()` handles negative numbers in the input vector. In the first case (c(0, 1, 4)), there are no negative numbers, so the function returns a numeric vector. However, in the second case (c(0, 1, -4)), a negative number triggers the function to return "not possible" as a character value. This mixed-type result prevents `is.numeric()` from returning TRUE because it now includes both numeric and character elements. Thus, the presence of a negative number in the input affects the data type of the function's output and, consequently, the result of `is.numeric()`.
+   
+   ---
+
+5. This problem will give you some practice with creating and manipulating vectors.
+    a) Using `seq()`, create a vector consisting of an arithmetic sequence of integers from 5 to 50 with a common difference of 5 stored in a variable called `mySeq`. **Report** `mySeq`.  
+    - **Answer**:
+    
+```{r}
+# Create the arithmetic sequence
+mySeq <- seq(from = 5, to = 50, by = 5)
+
+# Report the mySeq vector
+mySeq
+
+```       
+    
+  b) Describe how the different arguments in each of the three following commands changes the output of `rep()`: `rep(mySeq, 5)`, `rep(mySeq, each = 5)`, and `rep(mySeq, mySeq)`.
+  
+  - **Answer**:
+      The `rep()` function in R is used to replicate elements of a vector. The different arguments in each of the three commands you mentioned change how the replication is performed:
+
+    `rep(mySeq, 5)`:
+          In this command, the times argument is set to 5.
+Result: Each element in mySeq is repeated 5 times consecutively, and this pattern is repeated for the entire mySeq vector. It creates a longer vector with each element of mySeq repeated 5 times.<br><br>
+`rep(mySeq, each = 5)`:
+          In this command, the each argument is set to 5.
+Result: Each element in mySeq is repeated 5 times in sequence before moving on to the next element. It creates a longer vector where each element of mySeq is repeated 5 times in a row.
+<br><br>
+`rep(mySeq, mySeq)`:
+          In this command, the times argument is specified as mySeq, which is a vector itself.Result: This command replicates the elements of mySeq based on the values in the mySeq vector. For example, if mySeq contains the sequence [5, 10, 15], then the first element of `mySeq (5)` is repeated 5 times, the second element (10) is repeated 10 times, and the third element (15) is repeated 15 times.<br><br>
+          In summary, the times argument in `rep()` specifies how many times the entire input vector should be repeated, while the each argument specifies how many times each element of the input vector should be repeated in sequence. When I use a vector as the argument, it determines the number of repetitions for each element based on the values in the vector.
+```{r}
+# Example 1: rep(mySeq, 5)
+result1 <- rep(mySeq, 5)
+result1
+
+# Example 2: rep(mySeq, each = 5)
+result2 <- rep(mySeq, each = 5)
+result2
+
+# Example 3: rep(mySeq, mySeq)
+result3 <- rep(mySeq, mySeq)
+result3
+
+```  
+   --- 
+    
+c) Concatenate the sequence `1:14` to the end of the vector described by `rep(mySeq,mySeq)` and store
+the resulting vector in the same `mySeq` variable. **Report** the length of `mySeq`. 
+  - **Answer**:
+  
+```{r}
+# Concatenate the sequence 1:14 to the end of mySeq
+mySeq <- c(rep(mySeq, mySeq), 1:14)
+
+# Report the length of mySeq
+length(mySeq)
+
+```
+    
+  ---
+    
+d) Create a square matrix populated row-wise from your `mySeq` vector and store it in a variable called `sqMtrx`. **Report** the vector of values described by the column sums of `sqMtrx`
+    - **Answer**:
+    
+```{r}
+# Create the square matrix
+sqMtrx <- matrix(mySeq, nrow = sqrt(length(mySeq)), byrow = T)
+
+# Calculate the column sums
+colSumsVector <- colSums(sqMtrx)
+
+# Report the vector of values described by the column sums
+print(colSumsVector)
+
+```
+   
+   ---
+
+6. Write a program that will do the following. Include your codes and necessary outputs to demonstrate your work.  
+    a) Generate 350,000 random numbers from a gamma distribution with `shape = 2` and `scale = 3` and store these numbers in a vector called `myVector`. **Report** a histogram of the numbers you just generated.
+    - **Answer**:
+```{r}
+# Set the seed for reproducibility
+set.seed(911)
+
+# Generate 350,000 random numbers from a gamma distribution
+myVector <- rgamma(350000, shape = 2, scale = 3)
+
+# Create a histogram
+hist(myVector, main = "Histogram of Random Numbers from a gamma dist",
+     xlab = "Value", ylab = "Frequency",
+     col = "lightyellow", border = "black")
+
+```    
+    
+  ---
+  
+  b) Convert `myVector` into a matrix with 5,000 rows and assign it to an object called `myMatrix`. **Report** the dimensions of `myMatrix`.  
+  - **Answer**:
+```{r}
+# Create a matrix with 5,000 rows from myVector
+myMatrix <- matrix(myVector, nrow = 5000)
+
+# Report the dimensions of myMatrix
+dim(myMatrix)
+
+```
+  
+  ---
+  
+  c) Compute the row means of `myMatrix` and **report** a histogram of those row means.
+  - **Answer**:
+```{r}
+# Compute row means of myMatrix
+row_means <- rowMeans(myMatrix)
+
+# Create a histogram of row means
+hist(row_means, main = "Histogram of Row Means", xlab = "Row Means", ylab = "Frequency", col = "lightgreen")
+
+```  
+  
+  d) Explain why the two histograms you created in (6a) and (6c) have different shapes.     
+  - **Answer**:The first histogram is generated from the ``myVector` vector, which contains 350,000 random numbers drawn from a gamma distribution with a `shape` parameter of 2 and a `scale` parameter of 3. This distribution results in a particular pattern of values, and the histogram represents the distribution of these random values.<br><br>
+         The second histogram is generated from the `row_means` vector, which contains the row means of the `myMatrix` matrix. The `myMatrix` matrix was created from a different dataset and had different statistical properties. The histogram of row means represents the distribution of average values for each row in the `myMatrix`.    
+    
+    ---
+  7. Perform the following reproducible procedure:  
+    a) Set a seed for the `R` random number generator using `set.seed()` and seed value 2019. 
+    - **Answer**:
+```{r}
+## Set the seed for reproducibility
+set.seed(2019)
+```    
+    ---  
+b) Create a vector called `x` of 1,000 values from a normal distribution with mean 100 and standard deviation 20. **Report** the `summary()` of `x`.
+   - **Answer**:
+```{r}
+# Set the seed for reproducibility
+set.seed(2019)
+
+# Generate a vector of 1,000 values from a normal distribution
+x <- rnorm(1000, mean = 100, sd = 20)
+
+# Report the summary of x
+summary(x)
+
+```
+  ---
+  
+  c) Create a second vector called `y` of 1,000 values from a normal distribution with mean 0 and standard deviation 4. **Report** the `summary()` of `y`. <br>
+  - **Answer**:
+```{r}
+# Set the seed for reproducibility
+set.seed(2019)
+
+# Generate a vector of 1,000 values from a normal distribution
+y <- rnorm(1000, mean = 0, sd =4)
+
+# Report the summary of x
+summary(y)
+
+```    
+  ---
+   
+   g) Create a data frame called `df` from your `x` and `y` vectors.<br>
+  - **Answer**:Here are the `df` :
+```{r}
+# Create a data frame df from vectors x and y
+df <- data.frame(x, y)
+```
+  ---  
+  
+   h) Generate a scatterplot of `df`.
+  - **Answer**:
+```{r}
+# Generate a scatterplot of df
+plot(df$x, df$y, main = "Scatterplot of df", xlab = "x", ylab = "y", col = "blue")
+
+```
+ ---
+  
+  i) **Report** the `tail()` of `df` as a nice table using `kable()`.
+  - **Answer**:
+```{r}
+#install.packages("knitr")
+library(knitr)
+
+# Display the tail of df as a table
+kable(tail(df),align = "lccc",caption = "Bottom data of DF",format = "markdown")
+
+```
+  ---
+    
+8. Based on our lecture notes, answer the following questions. Show your answer presenting the relavent `R` code.
+
+  a) We have a vector of values `x = c(2,4,5, "3.5")`. What would be the mode of the vector `x`? 
+  - **Answer**:The mode of the vector`x` is character
+```{r}
+x <- c(2, 4, 5, "3.5")
+mode_x <- mode(x)
+mode_x
+```
+   ---
+   
+   b) How do you load a package into `R`? Show that loading `ggplot2` package.
+    - **Answer**:
+```{r}
+library("ggplot2")
+```
+   ---
+   
+   c) Missing values are shown as `NA` in `R`. How can you check if there is any missing values in a vector `y = c(3,5,8, NA, 6)`?
+    - **Answer**:when my variable `missing_values` print `TRUE` then i will know.
+```{r}
+# Create a vector
+y <- c(3, 5, 8, NA, 6)
+
+# Check for missing values
+missing_values <- is.na(y)
+missing_values
+
+```
+ 
+  ---
