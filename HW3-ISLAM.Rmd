@@ -1,0 +1,350 @@
+---
+title: "STAT 4410/8416 Homework 3"
+author: "ISLAM MD TAHIDUL"
+date: "Due on October 30"
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align='center', message=FALSE, warning=FALSE)
+output = opts_knit$get("rmarkdown.pandoc.to")
+if(!is.null(output)) {
+  if(output=="html") opts_chunk$set(out.width = '400px') else
+    opts_chunk$set(out.width='.6\\linewidth')
+}
+```
+
+**1.** **Text Data analysis:** Download `lincoln-last-speech.txt` from Canvas which contains Lincoln's last public address. Now answer the following questions and include your codes.  
+
+
+   a)  Read the text and store the text in `lAddress`. Show the first 70 characters from the first element of the text.
+   
+```{r,warning=FALSE}
+lAddress <- readLines("lincoln-last-speech.txt", encoding = "UTF-8")
+cat(substr(lAddress[1], 1, 70))
+```   
+   
+   b)  Now we are interested in the words used in his speech. Extract all the words from `lAddress`, convert all of them to lower case and store the result in `vWord`. Display first few words.
+   
+```{r}
+# Combine all lines into one long text
+full_text <- paste(lAddress, collapse = " ")
+# Tokenize the text into words
+words <- unlist((strsplit(full_text, "\\s+")))
+# Convert all words to lowercase
+vWord <- tolower(words)
+# Display the first few words
+head(vWord)
+```
+   
+   c)  The words like `am`, `is`, `my` or `through` are not much of our interest and these types of words are called stop-words. The package `tm` has a function called `stopwords()`. Get all the English stop words and store them in `sWord`. Display few stop words in your report.  
+
+```{r}
+#install.packages("tm")
+library(tm)
+# Get English stop words
+sWord <- stopwords("en")
+# Display a few stop words
+head(sWord)
+```
+   
+   d) Remove all the `sWord` from `vWord` and store the result in `cleanWord`. Display first few clean words.
+```{r,warning=FALSE}
+# library(tm)
+# Remove stop words from vWord
+cleanWord <- vWord[!vWord %in% sWord]
+# Display the first few clean words
+head(cleanWord)
+```
+   
+   e)  `cleanWord` contains all the cleaned words used in Lincoln's address. We would like to see which words are more frequently used. Find 15 most frequently used clean words and store the result in `fWord`. Display first 5 words from `fWord` along with their frequencies.  
+```{r}
+# Combine "it." and "it," as one word "it"
+cleanWord[grepl("^(it\\.|it,)$", cleanWord)] <- "it"
+# Create a table of word frequencies
+word_freq <- table(cleanWord)
+# Sort the table in descending order
+sorted_word_freq <- sort(word_freq, decreasing = TRUE)
+# Get the top 15 most frequently used words
+fWord <- head(sorted_word_freq, 15)
+# Display the first 5 words from fWord along with their frequencies
+head(fWord,5)
+```   
+   f)  Construct a bar chart showing the count of each words for the 15 most frequently used words. Add a layer `+coord_flip()` with your plot.  
+```{r}
+library(ggplot2)
+# Convert fWord to a data frame for plotting
+word_15_most <- as.data.frame(fWord)
+# Rename the columns for clarity
+colnames(word_15_most) <- c("Word", "Count")
+# Create a bar chart
+plot <- ggplot(word_15_most, aes(x = Word, y = Count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+# Display the bar chart
+print(plot)
+```   
+   g)  What is the reason for adding a layer `+coord_flip()` with the plot in question (f). Explain what would happen if we would not have done that.  
+
+This `+coord_flip()` used in data visualization to change the orientation of the plot from vertical bars to horizontal bars, or vice versa. The primary reason for doing this is to improve the readability and presentation of the data, especially when we have a large number of bars or long labels.
+
+It can be problematic if we have a large number of words or long word labels.
+  
+   h)  The plot in question (f) uses bar plot to display the data. Can you think of another plot that delivers the same information but looks much simpler? Demonstrate your answer by generating such a plot.   
+```{r,warning=FALSE}
+#install.packages("wordcloud")
+library(tm)
+library(wordcloud)
+
+# Create a data frame with word frequencies
+wordcloud_data <- data.frame(word = names(fWord), freq = as.numeric(fWord))
+
+# Generate a word cloud
+wordcloud(words = wordcloud_data$word, freq = wordcloud_data$freq, scale=c(3, 0.5), colors=brewer.pal(8, "Dark2"))
+
+```
+   i) In the question (c), you removed words that are called `stop-words`. Now please answer the following:
+         a)  Count the total stop words from `lAddress` and store it in `stopWordsCount`
+```{r}
+# Count the stop words in the text
+stopWordsCount <- sum(vWord %in% sWord)
+stopWordsCount
+```         
+         b)  Count the total words (including stop-words) from `lAddress` and store it in `lAddressCount`
+```{r}
+# Tokenize the text into words
+words <- unlist(strsplit(lAddress, "\\s+"))
+# Count the total words (including stop words) in the text
+lAddressCount <- length(words)
+lAddressCount
+```         
+         c)  Divide `stopWordsCount` by `lAddressCount` and report the percentage
+```{r}
+# Calculate the percentage of stop words
+percentage_stop_words <- round((stopWordsCount / lAddressCount) * 100,2)
+cat(percentage_stop_words,"%")
+```         
+         d)  Explain in your own words what does the percentage indicate in this context?
+
+The percentage tells us that roughly half of the words in the text are non-substantive words.So, if we want to analysis text data then we should remove stop word to get meaningful insights.
+     
+
+
+**2.** **Regular Expressions:** Write a regular expression to match patterns in the following strings. Demonstrate that your regular expression indeed matched that pattern by including codes and results. Carefully review how the first problem is solved for you. 
+
+   aa) We have a vector `vText` as follows. Write a regular expression that matches `g, og, go or ogo` in `vText` and replace the matches with '.'.
+```{r}
+vText <- c('google','logo','dig', 'blog', 'boogie' )
+```
+
+**Answer:**
+```{r}
+pattern <- 'o?go?'
+gsub(pattern, '.', vText)
+```
+   a)  We have a vector `VNumbers` as follows. Write a regular expression that extracts only binary values (0,1) from `VNumbers`.
+```{r}
+VNumbers = c('01011123AEX','1010183DIS','1A02L01A13', 'A2NE3000111')
+# Create a vector of binary values using gsub
+binary_values <- gsub("[^01]", "", VNumbers)
+binary_values
+```
+   b)  Replace only the 5 or 6 digit numbers with the word "found" in the following vector. Please make sure that 3, 4, or 7 digit numbers do not get changed.
+```{r}
+vPhone = c('874','6783','345345', '32120', '468349', '8149674' )
+replace_5or6 <-gsub("\\b\\d{5,6}\\b", "found", vPhone)
+replace_5or6
+```  
+   c)  Replace all the characters that are not among the 26 English characters or a space. Please replace with an empty spring.
+```{r}
+myText = "#y%o$u @g!o*t t9h(e) so#lu!tio$n c%or_r+e%ct"
+replace_non_chr <- gsub("[^a-zA-Z ]","",myText)
+replace_non_chr
+```  
+   d)  Extract all the Proper nouns from the `myText` using Regular expression.
+```{r}
+#problem for For
+library(stringr)
+myText = "welcome to University of Nebraska Omaha. For Math department classes please go to DSC"
+proper_nouns <- unlist(str_extract_all(myText, "\\b[A-Z][a-z]*\\b"))
+proper_nouns
+```  
+   e)  Extract all the three numbers embedded in the following text.
+```{r}
+#library(stringr)
+bigText = 'There are four 20@20 numbers hid989den in the 500 texts'
+extracted_numbers <- gsub("@", "", bigText)
+extracted_numbers <- unlist(str_extract_all(extracted_numbers, "\\d+"))
+#extracted_numbers <- str_extract_all(gsub("@", "", bigText), "\\d+")
+extracted_numbers
+
+```  
+   f)  Extract all the words that have a upper case letter in the start and end,convert all the words into lowercase.
+```{r}
+myText = 'ThE SalrieS are ReporteD (in millions) for every CompanY.'
+extract_uppeer_lower <- print(str_to_lower(unlist(str_extract_all(myText,"[A-Z][a-z]+[A-Z]")))) 
+```  
+   g)  Extract the texts in between _ and dot(.) in the following vector. Your output should be 'bill', 'pay', 'fine-book'.  
+```{r}
+#..................
+myText = c("H_bill.xls", "Big_H_pay.xls", "Use_case_fine-book.pdf")
+extracted_texts <- str_extract(myText, "(?<=_)[^.]+")
+# Remove any leading characters before "_"
+extracted_texts <- sub(".*_", "", extracted_texts)
+
+# Display the extracted texts
+extracted_texts
+```  
+   h)  Extract the numbers (return only integers) that are followed by the units 'ml' or 'lb' in the following text.   
+```{r}
+myText = 'Received 10 apples with 200ml water at 8pm with 15 lb meat and 2lb salt'
+unit_match <- as.integer(gsub("[a-z]*","",unlist(str_extract_all(myText,"[0-9]+\\s?[ml|lb]+"))))
+unit_match
+```  
+   i)  Extract only the word in between pair of symbols `$`. Count number of words you have found between pairs of dollar sign `$`.  
+```{r}
+myText = 'Math symbols are $written$ in $between$ dollar $signs$'
+extract_dollar <- gsub("\\$","",unlist(str_extract_all(myText,"\\$([^\\$]+)\\$")))
+extract_dollar
+cat("Number of words:",length(extract_dollar))
+```  
+   j)  Extract all the valid equations in the following text.
+```{r}
+myText = 'equation1: 21 - 12 = 9, equation2 is: 2*3=6, do not extract 2w3=6'
+valid_eq <-unlist(str_extract_all(myText, "\\b[0-9]*?\\s*[+\\-*\\/]+?\\s*[0-9]*?\\s*[=]\\s*[0-9]*\\b"))
+valid_eq
+```  
+   k)  Extract all the letters of the following sentence and check if it contains all 26 letters in the alphabet. If not, produce code that will return the total number of unique letters that are included and show the letters that are missing.
+```{r}
+myText = 'there are five wizard boxing matches to be judged'
+# Extract all letters from the sentence and convert to lowercase
+input_letters <- tolower(gsub("[^a-z]", "", myText))
+input_letters <-strsplit(input_letters, "")[[1]]
+input_letters<-sort(unique(input_letters))
+# Create a vector of all 26 lowercase alphabet letters
+all_letters <- letters[1:26]
+# Check if it contains all 26 letters
+check_uniq <- all_letters %in% input_letters
+if (!any(!check_uniq)) { # !any to check any false
+  cat("The sentence contains all 26 letters of the alphabet.\n")
+} else {
+  missing_letters <- setdiff(unique(all_letters), unique(input_letters))
+  cat("Total number of unique letters:",paste(length(missing_letters)))
+  cat("\n")
+  cat("Unique letters are:",missing_letters)
+}
+```
+   l) Extract the valid web link from the text
+```{r}
+myText = '<body> the valid site is http://www.bbc.com not http://.com'
+valid_web_link <- unlist(str_extract_all(myText,"[a-z://]+[a-z]{3}[.][a-z]+[.][a-z]{3}"))
+valid_web_link 
+```
+   
+
+**3.** **Extracting data from the web:** Our plan is to extract data from web sources. This includes email addresses, phone numbers or other useful data. The function `readLines()` is very useful for this purpose.  
+
+   a)  Read all the text in https://www.unomaha.edu/college-of-arts-and-sciences/mathematics/about-us/directory/index.php and store your texts in `myText`. Show first few rows of `myText` and examine the structure of the data.  
+```{r}
+# URL of the web page
+url <- "https://www.unomaha.edu/college-of-arts-and-sciences/mathematics/about-us/directory/index.php"
+# Read the web page into a variable
+myText <- readLines(url, warn = FALSE)
+# Show the first few lines of myText
+head(myText)
+```   
+   b)  Write a regular expression that would extract all the http web links addresses from `myText`. Include your codes and display the results that show only the `http` or `https` web link addresses and nothing else.
+```{r}
+# Extract HTTP and HTTPS web link addresses
+web_links <- regmatches(myText, gregexpr("https?://[^\t\n\r ()]+", myText))
+# Remove any unwanted characters or whitespace
+web_links <- gsub("[\t\n\r ()]", "", unlist(web_links))
+# Display the extracted web link addresses
+head(web_links)
+```   
+   c)  Now write a regular expression that would extract all the emails from `myText`. Include your codes and display the results that show only the email addresses and nothing else. 
+```{r}
+# Extract email addresses
+email_addresses <- unique(unlist(regmatches(myText, gregexpr("\\b[A-Za-z0-9._+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b", myText))))
+#print email addresses
+email_addresses
+```   
+   d)  Write a regular expression to extract words with 11 or more letters in the text. Include your codes and display the result that shows the words without duplication.
+```{r}
+eleven_word <- unique(unlist(regmatches(myText,gregexpr("\\b[A-Za-z]+{11,}\\b",myText))))
+eleven_word
+```   
+   e)  Now we want to extract all the phone/fax numbers in `myText`. Write a regular expression that would do this. Demonstrate your codes showing the results without duplication. 
+```{r}
+phone_number <-unlist(regmatches(myText,gregexpr("\\b[+1]?[0-9]+{3}[\\.]+[0-9]+{3}[\\.]+[0-9]+{4}\\b",myText)))
+phone_number
+```   
+   f)  The link of ggplot2 documentation is https://ggplot2-book.org/individual-geoms.html and we would like to get the list of individual ggplot2 geoms from there. Write a regular expression that would extract all the geoms names (geom_bar is one of them) from this link and display the unique geoms. How many unique geoms does the page list?  
+```{r}
+url <-"https://ggplot2-book.org/individual-geoms.html"
+link <- readLines(url, warn = FALSE)
+#tail(link)
+geom_names<-unlist(regmatches(link,gregexpr("\\bgeom_[a-z]+\\b",link))) 
+geom_names
+cat ("\n")
+cat("Number of unique geoms the page contains is  :", length(unique(geom_names)))
+```   
+
+**4.** **Big data problem:** Download the sample of a big data `bigDataSample.csv` from Canvas. Note that the data is in csv format and compressed for easy handling. You may need to uncompress it before using. Now answer the following questions. 
+
+   a)  Read the data and select only the columns that contains the word 'human'. Store the data in an object `dat`. Report first few rows of your data.  
+```{r}
+sample_dat <-read.csv("bigDataSample.csv")
+# Select columns containing the word 'human'
+dat <- sample_dat %>% 
+  dplyr::select(contains("human"))
+# Report the first few rows of the selected columns
+head(dat)
+```   
+   b)  The data frame `dat` should have 5 columns. Rename the column names keeping only the last character of the column names. So each column name will have only one character. Report first few rows of your data now.  
+```{r}
+dat <- dat %>%
+  dplyr::rename_all(~ substr(., nchar(.), nchar(.)))
+head(dat)
+```   
+   c)  Compute and report the means of each columns group by column b in a nice table.  
+```{r,fig.align='center'}
+library(dplyr)
+mean_by_b <- dat %>%
+   group_by(b)%>%
+   summarize(across(everything(), mean, na.rm = TRUE))
+mean_by_b <-round(mean_by_b ,2)
+library(DT)
+datatable(data=,mean_by_b)
+```   
+   d)  Change the data into long form using id='b' and store the data in `mdat`. Report first few rows of data.  
+```{r}
+library(tidyr)
+mdat <- dat %>%
+  pivot_longer(cols = -b, names_to = "variable", values_to = "value")
+head(mdat,5)
+```   
+   e)  The data frame `mdat` is now ready for plotting. Generate density plots of value, color and fill by variable and facet by b.  
+```{r}
+library(ggplot2)
+#Generate density plots
+ggplot(mdat, aes(x = value, fill = variable, color = variable)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~ b) +
+  labs(title = "Density Plots by Variable and Facet by b", x = "Value") +
+  theme_minimal()
+
+```   
+   f)  This data set is a sample of much bigger data set. Here we read the data set and then selected the desired column. Do you think it would be wise do the same thing with the actual larger data set? Explain how you will solve this problem of selecting few columns (as we did in question a) without reading the whole data set first. Demonstrate that showing your codes. 
+
+i will use `fread`,as `fread` memory maps the file into memory and then iterates through the file using pointers.Whereas `read.csv` reads the file into a buffer via a connection.
+  So `fread` is faster.
+```{r}
+library(data.table)
+dat_new <- fread("bigDataSample.csv", select = c("var_human_1_g","var_human_1_p","var_human_1_b","var_human_1_e","var_human_1_n"))
+head(dat_new,5)
+```
