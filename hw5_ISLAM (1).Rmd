@@ -1,0 +1,203 @@
+---
+title: "STAT 4410/8416 Homework 5"
+author: "ISLAM MD TAHIDUL"
+date: "Due on Nov 28, 2023"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: 
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align='center', dpi=100, message=FALSE, warning=FALSE, cache=TRUE)
+output <- opts_knit$get("rmarkdown.pandoc.to")
+if(!is.null(output)) {
+  if (output=="html") opts_chunk$set(out.width = '400px') else
+    opts_chunk$set(out.width='.6\\linewidth')
+}
+```
+
+1. **Working with databases:** Please follow the instruction below before answering the questions:
+
+* Install the package `sqldf` using `install.packages('sqldf')`
+* Import the library using `library('sqldf')`
+* Read the file `https://raw.githubusercontent.com/dsindy/kaggle-titanic/master/data/train.csv ` and store it in an object called `titanic`
+
+```{r, echo=FALSE}
+library(sqldf)
+library(data.table)
+titanic <- fread('https://raw.githubusercontent.com/dsindy/kaggle-titanic/master/data/train.csv')
+#?write.csv
+#write.csv(titanic,"titanic.csv")
+```
+
+
+We can now start writing SQL Script using `SQLDF library` right inside R. See example below:
+
+```{r}
+library(sqldf)
+
+sqldf("SELECT passengerid, name, sex
+      FROM titanic
+      limit 5", drv="SQLite")
+```
+
+
+Answer the following questions. Write SQL Script where applicable.
+
+a. What does the following command do in MySQL?
+    i. `show databases;` 
+Answer: `show databases;` is used to display a list of all databases available on the MySQL server.    
+    ii. `show tables;` 
+Answer: `show tables;` is used to display a list of all tables in the currently selected database.
+
+b. Write `SQL` script to answer the following questions based on titanic data. Display the results of your script.
+    i. What is the average age of passengers who survived? Group the data by Sex. Display only the column `Sex`, `AverageAge`
+```{r}
+avg_age_passanger <- sqldf("SELECT Sex, AVG(Age) AS AverageAge
+                            FROM titanic
+                            WHERE Survived = 1 AND Age IS NOT NULL
+                            GROUP BY Sex")
+avg_age_passanger
+```
+    ii. What is the percentage of passengers who survived in each Passenger Class or `Pclass`? Group the data by `Sex`. Display Pclass, Sex, percentage value. 
+    
+```{r}
+percent_passanger_servived <- sqldf("SELECT Pclass, Sex, 
+                                    (SUM(Survived) * 100.0 / COUNT(*)) AS SurvivalPercentage
+                                     FROM titanic
+                                     GROUP BY Pclass, Sex")
+percent_passanger_servived
+```
+    iii. What is the average age of all the passenger (survived and not survived)? Group the data by `Pclass`, `Sex`, `Survived`. After that use `ggplot` to generate a line plot to show average age vs pclass, facet by sex and color it by survived.
+    
+```{r}
+avg_age_ <- sqldf("SELECT AVG(Age) AS AverageAge
+                   FROM titanic
+                   WHERE Age IS NOT NULL")
+avg_age_ <- round(avg_age_,2)
+paste("average age of all the passenger (survived and not survived) is",avg_age_)
+
+avg_age <- sqldf("SELECT Pclass, Sex, Survived, AVG(Age) AS AvgAge
+                  FROM titanic
+                  WHERE Age IS NOT NULL
+                  GROUP BY Pclass, Sex, Survived")
+avg_age$Survived <- factor(avg_age$Survived, labels = c("Not Survived", "Survived"))
+library(ggplot2)
+ggplot(avg_age, aes(x = Pclass, y = AvgAge, color = Survived)) +
+  geom_line() +
+  facet_grid(. ~ Sex) +
+  labs(title = "Average Age vs Pclass (Faceted by Sex and Colored by Survived)",
+       x = "Pclass",
+       y = "Average Age") +
+  theme_minimal()
+```
+    iv. What is the name, age, sex and pclass of the 5 oldest and 5 youngest persons who died?
+
+```{r}
+
+oldest_died <- sqldf("SELECT Name, Age, Sex, Pclass
+                      FROM titanic
+                      WHERE Survived = 0 AND Age IS NOT NULL
+                      ORDER BY Age DESC
+                      LIMIT 5")
+#print("5 oldest person who died is ")
+oldest_died
+youngest_died <- sqldf("SELECT Name, Age, Sex, Pclass
+                        FROM titanic
+                        WHERE Survived = 0 AND Age IS NOT NULL
+                        ORDER BY Age
+                        LIMIT 5")
+youngest_died
+```
+    v. On average which Passenger Class is more expensive?
+    
+```{r}
+avg_fare <- sqldf("SELECT Pclass, AVG(Fare) AS AverageFare
+                   FROM titanic
+                   GROUP BY Pclass
+                   ORDER BY AverageFare DESC
+                   LIMIT 1")
+cat("The most expensive Passenger Class is ' Pclass:", avg_fare$Pclass[1], "' and the fare is", avg_fare$AverageFare[1])
+```
+c. Notice the following `R` codes and explain what it is doing.
+```{r}
+library(RSQLite)
+conn <- dbConnect(RSQLite::SQLite(), "titanicDB")
+dbWriteTable(conn, name = "titanic", value = titanic, overwrite=TRUE)
+dbListTables(conn)
+
+```
+
+This `R` code establish a connection to an SQLite database, write the titanic data into a table named "titanic" in that database, and then list the tables in the connected database to verify the presence of the "titanic" table.
+
+
+d. Use package `dplyr` to obtain the same result as you did in 1b(iii) above. For this use the connection string `conn` and the function `tbl()`. Store the result in an object called `meanAge`.
+```{r}
+library(dplyr)
+titanic_tbl <- tbl(conn, "titanic")
+meanAge <- titanic_tbl %>%
+  filter(!is.na(Age)) %>%
+  group_by(Pclass, Sex, Survived) %>%
+  summarise(AvgAge = mean(Age))
+#meanAge
+```
+
+e. Show the `SQL` query to create `meanAge` in 1(d) using the function `show_query()`
+```{r}
+show_query(meanAge)
+```
+
+2. **Working with MySQL:** Please follow the instruction below before answering the questions:
+
+Obtain the remote access to the data science lab machine described in lecture 22 (UNO CAS Online Lab). This will allow you to work with MySQL from R. You may use RStudio in that virtual machine to work on this problem.
+
+a. Use the following R code to connect the database trainingdb.
+```{r}
+library(RMySQL)
+con = dbConnect(MySQL(),user="training", password="training123", 
+               dbname="trainingDB", host="localhost")
+```
+
+b. Write down a `SQL` command to select pclass, sex, survived and their average age from the titanic table. Store the selected data in data frame `avgAge` and display all the aggregated data.
+```{r}
+#SELECT pclass, sex, survived, AVG(age) AS avg_age
+#FROM titanic
+#GROUP BY pclass, sex, survived;
+avgAge <- dbGetQuery(con, "SELECT pclass, sex, survived, AVG(age) AS avg_age FROM titanic GROUP BY pclass, sex, survived;")
+avgAge
+
+```
+
+c. Now generate a line plot showing average age vs pclass colored by survived and faceted by sex.
+
+```{r}
+library(ggplot2)
+avgAge$pclass <- factor(avgAge$pclass, levels = c("1st", "2nd", "3rd"))
+ggplot(avgAge, aes(x = pclass, y = avg_age, group = survived, color = survived)) +
+  geom_line() +
+  facet_grid(. ~ sex) +
+  labs(title = "Average Age vs Pclass (Colored by Survived, Faceted by Sex)",
+       x = "Pclass",
+       y = "Average Age") +
+  theme_minimal()
+
+```
+
+d. Use the package `dplyr` to obtain the same result as you did in question 2(b). Display the results and the underlying `SQL` command used by `dplyr`.
+```{r}
+
+avgAge_ <- titanic_tbl %>%
+  group_by(Pclass, Sex, Survived) %>%
+  summarise(AvgAge = mean(Age, na.rm = TRUE))
+
+show_query(avgAge_)
+```
+
+
+
+
+
+
