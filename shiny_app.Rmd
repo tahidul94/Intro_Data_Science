@@ -1,0 +1,157 @@
+---
+title: "Understanding Crime Trends in Los Angeles through 911 Call Data Analysis "
+author:
+   <center>
+date: "December 13, 2023"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.align='center')
+```
+
+
+```{r , warning=FALSE}
+
+library(data.table) #faster way to read large dataset
+library(tidyverse) #load dplyr, tidyr and ggplot
+library(lubridate) #date manuplation
+library(data.table)
+library(stringr)
+library(lubridate)
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE, fig.align='center')
+
+#loding the data
+#url <- read.csv("https://data.lacity.org/api/views/2nrs-mtv8/rows.csv?accessType=DOWNLOAD")
+#head(url)
+#crime_data<-url
+crime_data<-read.csv("crime.csv")
+library(knitr)
+knitr::opts_chunk$set(echo = FALSE, fig.align='center')
+#Data Cleaning
+#step 1 we removed the '.' in column names by regex
+colnames(crime_data) <- gsub("\\.", "_", colnames(crime_data))
+#make everything lower case
+colnames(crime_data) <- str_to_title(colnames(crime_data))
+# step 2 get rid of 0:00 from date column
+crime_data[] <- lapply(crime_data, function(x) gsub("12:00:00 AM", "", x))
+#crime_data$`Date_rptd`<- gsub("(\\d{1,2}/\\d{1,2}/)(\\d{2})", "\\120\\2",crime_data$`Date_rptd`)
+#crime_data$`Date_occ`<- gsub("(\\d{1,2}/\\d{1,2}/)(\\d{2})", "\\120\\2",crime_data$`Date_occ`)
+
+
+# step 3 time occ column contains military times
+# so we put 0 infornt of the number to make four digit
+crime_data$Time_occ <- str_pad(crime_data$Time_occ, width = 4, pad = "0")
+crime_data$Time_occ <- sprintf("%02d:%02d", as.integer(substr(crime_data$Time_occ, 1, 2)), as.integer(substr(crime_data$Time_occ, 3, 4)))
+# step 4 finding week days from colunm Date_rpdt and Date_occ
+# Use mutate to create a new 'weekdate' column
+#crime_data <- crime_data %>% 
+  #dplyr::mutate(weekdate_rptd = lubridate::wday(mdy(Date_rptd), label = TRUE))
+crime_data <- crime_data %>% 
+  dplyr::mutate(Weekdate_occ = lubridate::wday(mdy(Date_occ), label = TRUE))
+crime_data <- crime_data %>% 
+  dplyr::mutate(Month_occ = lubridate::month(mdy(Date_occ), label = TRUE))
+crime_data <- crime_data %>% 
+  dplyr::mutate(Year_occ = lubridate::year(mdy(Date_occ)))
+#tail(crime_data)
+
+# Step 5: Replace values in 'Vict_descent' column
+##Vict_descent column replace with long name
+descent_mapping <- c(
+  "A" = "Other Asian",
+  "B" = "Black",
+  "C" = "Chinese",
+  "D" = "Cambodian",
+  "F" = "Filipino",
+  "G" = "Guamanian",
+  "H" = "Hispanic",
+  "I" = "American Indian",
+  "J" = "Japanese",
+  "K" = "Korean",
+  "L" = "Laotian",
+  "O" = "Other",
+  "P" = "Pacific Islander",
+  "S" = "Samoan",
+  "U" = "Hawaiian",
+  "V" = "Vietnamese",
+  "W" = "White",
+  "X" = "Unknown",
+  "Z" = "Asian Indian"
+)
+
+# Replace values in the 'Vict_descent' column
+crime_data <- crime_data %>% 
+  mutate(Vict_descent = descent_mapping[as.character(Vict_descent)])
+```
+
+```{r ,warning=FALSE, out.width="50%",fig.width=5,fig.height=4}
+
+# Load necessary libraries
+library(leaflet)
+library(dplyr)
+library(readr)
+library(shiny)
+
+
+data1 <- crime_data
+data1$Lat <- as.numeric(as.character(data1$Lat))
+data1$Lon <- as.numeric(as.character(data1$Lon))
+
+# List of areas with corresponding counts
+areas_data <- data.frame(
+  Area_name = c("Foothill", "Hollenbeck", "Mission", "Topanga", "Devonshire", "Harbor", "West Valley",
+                "Van Nuys", "Northeast", "West LA", "Rampart", "Wilshire", "N Hollywood", "Newton",
+                "Olympic", "Southeast", "Hollywood", "Southwest", "Pacific", "77th Street", "Central"),
+  Count = c(27225, 30650, 32469, 33111, 33128, 33790, 34142, 34631, 35214, 37426, 38159, 38685, 40520,
+            40859, 41148, 41620, 43268, 45689, 47754, 51553, 54841)
+)
+
+# Generating separate color list for each area
+colors <- rainbow(nrow(areas_data))
+
+
+area_colors <- setNames(colors, areas_data$Area_name)
+
+ui <- fluidPage(
+  selectInput("areaSelect", "Select Area:", choices = areas_data$Area_name, multiple = TRUE),
+  actionButton("update", "Update Map"),
+  leafletOutput("map")
+)
+
+server <- function(input, output) {
+  output$map <- renderLeaflet({
+    selected_areas <- input$areaSelect
+    filtered_data <- data1 %>% filter(Area_name %in% selected_areas)%>%head(2000)
+    
+    if (nrow(filtered_data) > 0) {
+      map <- leaflet(filtered_data) %>% addTiles()
+      
+      for (area in unique(filtered_data$Area_name)) {
+        subset_data <- filtered_data[filtered_data$Area_name == area, ]
+        
+        map <- map %>%
+          addCircleMarkers(
+            data = subset_data,
+            lng = ~Lon, lat = ~Lat,
+            popup = ~paste(Crm_cd_desc, "<br>", Location),
+            radius = 4,
+            fillColor = area_colors[[area]], fillOpacity = 0.8,
+            group = area
+          )
+      }
+      
+      map
+    } else {
+      print("No data available for the selected area(s).")
+
+}
+  })
+}
+shinyApp(ui = ui, server = server)
+
+```
